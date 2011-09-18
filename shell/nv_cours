@@ -1,0 +1,22 @@
+#!/bin/sh env
+
+# variables
+date=$(date +'%y_%m_%d')  # pour le nom du fichier
+cours=$(date +'%d.%m.%y') # le numéro de cours à l'intérieur du fichier tex
+master=$(echo "$1")       # nom du fichier master
+cours_total=$(find *_*.tex | wc -l)  # en ajouter 1 pour le courant :
+num_cours=$(expr $cours_total + 1)
+
+
+# on commence par préciser le cours et les variables de latex :
+echo -e \
+"\\\cours{$num_cours. $cours}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: \"${master%.*}\"
+%%% End:" > $date.tex
+
+# et note éditeur préféré :
+emacs $date.tex
