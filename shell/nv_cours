@@ -8,7 +8,7 @@ total_lesson=$(find *_*.tex | wc -l)
 lesson_number=$(expr $total_lesson + 1)
 
 
-# 
+# copy this string to file
 echo -e \
 "\\\cours{$lesson_number. $lesson_date}
 
