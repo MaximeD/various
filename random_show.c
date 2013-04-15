@@ -6,10 +6,10 @@
 #include <time.h>
 
 /* define a struct for a linked list */
-typedef struct node {
+struct node {
   char file[PATH_MAX];
   struct node *next;
-} node;
+};
 
 struct node *get_videos(char *dir_name, struct node *head) {
   // printf("%s:\n", dir_name);
@@ -37,11 +37,19 @@ struct node *get_videos(char *dir_name, struct node *head) {
       char path[PATH_MAX];
       sprintf (path,
           "%s/%s", dir_name, entry->d_name);
+      // printf("%s\n", path);
 
-      /* check we have a regular file or a link */
+      /* 
+       * check we have a regular file or a link
+       * unfortunatly d_type won't work on some filesystems
+       */
+      
+      /* you can't 'open' a file like you do with a directory */
+      /*
       if(entry->d_type == DT_REG
           || entry->d_type == DT_LNK) {
-
+      */
+      if (!opendir(path)) {
         /* get extension */
         const char * ext = strrchr(path, '.');
 
@@ -59,10 +67,12 @@ struct node *get_videos(char *dir_name, struct node *head) {
             head = new;
           }
         }
-      }
-  
-      /* if there is a subdirectory scan it recursivly */
-      if (entry->d_type == DT_DIR) {
+      } else {
+      /* if (entry->d_type == DT_DIR) { */
+      /*
+       * it opened so it is a directory,
+       * scan it recursivly
+       */
         head = get_videos(path, head);
       }
     }
@@ -80,15 +90,25 @@ struct node *get_videos(char *dir_name, struct node *head) {
 }
 
 int main (int argc, char *argv[]) {
+  /*
+   * if no directory provided,
+   * show help and terminate
+   */
+  if (! argv[1] || strcmp(argv[1], "-h") == 0) {
+    fprintf (stderr, "Usage:\n%s directory\n",
+        argv[0]);
+    return 0;
+  }
+
   /* create a linked list */
   /* create the root node */
-  node *head;
+  struct node *head;
   head = NULL;
 
   head = get_videos(argv[1], head);
 
   /* create a pointer to walk through the linked list */
-  node *curr;
+  struct node *curr;
   curr = head;
 
   /*
@@ -101,7 +121,13 @@ int main (int argc, char *argv[]) {
     nb_ep++;
     curr = curr->next;
   }
-  printf("Found %d videos\n", nb_ep);
+
+  if (nb_ep == 0) {
+    printf("No video found in '%s'\n", argv[1]);
+    return 0;
+  }
+  
+  // printf("Found %d videos\n", nb_ep);
 
 
   /* get a random position in the linked list */
@@ -115,12 +141,19 @@ int main (int argc, char *argv[]) {
     curr = curr->next;
   }
 
-  /* create the command that should launch the file */
-  char command[PATH_MAX];
-  sprintf(command, "%s '%s'", argv[2], curr->file);
+  /* 
+   * if a player was provided
+   * create the command that should launch the file
+   */
+  if (argv[2]) {
+    char command[PATH_MAX];
+    sprintf(command, "%s \"%s\"", argv[2], curr->file);
 
-  /* and do it ! */
-  system(command);
+    /* and do it ! */
+    system(command);
+  } else {
+    printf("\"%s\"\n", curr->file);
+  }
 
   return 0;
 }
