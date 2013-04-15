@@ -6,7 +6,7 @@
 I wanted to mess a bit with C, recursivity and linked list.
 syntax :
 ```shell
-random_show directory video_player
+$> random_show directory [video_player]
 ```
 
 ## page_rank
