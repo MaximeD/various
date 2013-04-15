@@ -3,7 +3,6 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-#include <string.h>
 #include <time.h>
 
 /* define a struct for a linked list */
@@ -102,7 +101,7 @@ int main (int argc, char *argv[]) {
     nb_ep++;
     curr = curr->next;
   }
-  printf("nb ep: %d\n", nb_ep);
+  printf("Found %d videos\n", nb_ep);
 
 
   /* get a random position in the linked list */
